@@ -1,0 +1,66 @@
+一. 启动Activity的请求会由Instrumentation处理，然后它通过Binder向AMS发请求，AMS内部维护着一个ActivityStack并负责栈内的Activity的状态同步，AMS通过ActivityThread去
+      同步Activity的状态从而完成生命周期方法的调用。
+
+	note：当前Activity为A，打开一个新Activity B时，先执行A的onPause，再执行到B的onResume
+			analyze：... -> ActivityStack.resumeTopActivityInnerLocked {
+								1. ActivityStack.startPausingLocked 
+								2. ... -> ActivityStackSupervisor.realStartActivityLocked((ActivityRecord r, ProcessRecord app, boolean andResume, boolean checkConfig))
+							       		-> app.thread.scheduleLaunchActivity
+					 		} 
+			
+					其中thread为IApplicationThread(实现为ActivityThread的ApplicationThread)，
+
+					ApplicationThread的scheduleLaunchActivity方法最终会完成新Activity的onCreate,onStart,onResume的调用过程：
+					   ApplicationThread.scheduleLaunchActivity -> ActivityThread.H.handleMessage:LAUNCH_ACTIVITY -> ActivityThread.handleLaunchActivity{
+								  1. ActivityThread.performLaunchActivity{
+								  		1.  Instrumentation.callActivityOnCreate -> Activity.performCreate -> Activity.onCreate
+								  		2.  Activity.performStart -> Instrumentation.callActivityOnStart -> Activity.onStart;
+								     }
+								  
+								  2. ActivityThread.handleResumeActivity -> ActivityThread.performResumeActivity -> ActivityClientRecord.activity.performResume{
+								  		1. Activity.performRestart -> if(Activity.mStopped) { 
+								  				1. Instrumentation.callActivityOnRestart -> Activity.onRestart
+								  				2. Activity.performStart -> Instrumentation.callActivityOnStart -> Activity.onStart;
+								  		   }
+								  		  
+								  		2. Instrumentation.callActivityOnResume -> Activity.onResume
+								     }
+								  		
+					   }
+	note: 不能在onPause中做重量级的操作，因为必须onPause执行完成之后，新Activity才能Resume(即显示并切换到前台), 
+		      所以应该在onStop中执行某些操作，但这些操作也不能是耗时操作！	
+		      
+二. 异常情况下Activity的生命周期分析：
+	1. 当资源相关的系统配置发生改变时，会导致Activity被销毁并重新创建（目前已知案例为横竖屏切换时，系统资源配置会变化）。
+	      比如从竖屏切到横屏状态，系统资源配置会改变，如果drawable-land下有对应图片，则会加载此图片替换之前的竖屏对应的图片，
+	      Activity也会因为系统资源配置改变而被销毁并重新创建（默认情况下是这样，可以通过修改AndroidManifest.xml中Activity的
+	      android:configChanges的属性值阻止Activity的销毁重建）
+	
+		note：在系统的资源加载机制中，为了兼容不同的设备，会将图片放在不同的目录，drawabe-mdpi, drawable-hdpi, drawable-land等，
+			  当app启动时，系统会根据设备情况加载合适的Resource资源	
+			  
+		note：a. Activity被销毁，会执行onPause,onStop,onDestory方法。并且因为Activity的销毁属于异常情况，并且还有机会重新显示出来，所以系统会调用
+			     onSaveInstanceSate(Bundle outState) （在onStop之前调用，跟onPause无时序关系）来保存销毁之前Activity的状态（状态数据放到outState中保存）。 
+			     当Activity重新创建时，系统会调onRestoreInstanceState(Bundle savedInstanceState)方法(在onStart之后调用)，把之前保存的outStated传给savedInstanceState。
+		      b. onCreate(Bundle savedInstanceState) 中的savedInstanceState也会接受异常销毁时保存的状态，但如果Activity不是异常销毁重建，而是正常启动
+		         的话，则savedInstanceState是null。
+		      c. 在onSaveInstanceSate，onRestoreInstanceState中系统会做一些保存恢复工作，如Activity的视图结构(TextView的文本，ListView的滚动位置等)，
+		      	 对某一特定的View会保存恢复哪些状态数据，可以参考View的onSaveInstanceState()和onRestoreInstanceState(Parcelable state)方法实现。
+		      d. 关于保存恢复View的层次结构，系统的工作流程如下：
+		      		Activity调onSaveInstanceSate保存数据时，也会委托Window去保存数据，Window再委托它上面的顶级容器保存数据(顶层容器是一个ViewGroup，一般
+		      		来说很可能是DecorView)，最后顶层容器再去一一通知它的子View来保存数据。（这体现了一种委托思想，View的绘制，事件的分发也是类似的思想）	      
+		      e. 重写onSaveInstanceSate，onRestoreInstanceState可以保存和恢复我们想要的数据。
+		      f. onSaveInstanceSate只有在系统即将被销毁并且有机会重新显示的情况下，才会被调用。如果没有机会重新显示(如正常销毁时)则不会被调用到。
+		      g. onRestoreInstanceState(Bundle savedInstanceState)一旦被调用，savedInstanceState肯定不是null，(所以个人理解onSaveInstanceSate没有
+		      	  调用时，onRestoreInstanceState也不会被调用)
+		      	  
+	2. 资源内存不足导致低优先级的Activity被杀死
+	       这种情况下，Activity的数据保存和恢复过程同情况1一致。
+	       
+	3. 配置Acitivity的属性：android:configChanges="orientation"后，表示当Activity的方向属性发生改变时，Activity的onConfigurationChanged方法会被调用。
+	
+		note：屏幕方向改变，会默认导致Activity销毁重建
+		      
+		     		  
+					  
+					  
