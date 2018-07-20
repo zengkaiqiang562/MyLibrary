@@ -1,4 +1,4 @@
-package com.zengk.library.component.utils;
+package com.zengk.library.utils;
 
 import android.util.Log;
 
