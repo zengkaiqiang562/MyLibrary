@@ -1,0 +1,510 @@
+====创建数据库
+
+语法:
+create database 数据库名称 character set 字符集名称 collate collate名称;
+
+
+练习：
+创建一个名称为mydb1的数据库。
+create database mydb1;
+
+创建一个使用utf8字符集的mydb2数据库。
+create database mydb2 character set utf8;
+
+创建一个使用utf8字符集，并带校对规则的mydb3数据库。
+create database mydb3 character set utf8 collate utf8_general_ci;
+
+查看、删除数据库
+
+显示数据库语句：
+SHOW DATABASES
+
+显示数据库创c建语句：
+SHOW CREATE DATABASE db_name
+ 
+数据库删除语句：
+DROP DATABASE  [IF EXISTS]  db_name
+
+练习：
+查看当前数据库服务器中的所有数据库
+show databases;
+
+查看前面创建的mydb2数据库的定义信息
+show create database mydb2;
+
+删除前面创建的mydb1数据库
+drop database mydb1;
+
+修改数据库
+语法:
+alter database 数据库的名称 要更新的值;
+
+
+切换数据库 use db_name;
+查看当前使用的数据库 select database();
+
+练习
+ 查看服务器中的数据库，并把其中某一个库的字符集修改为gbk;
+
+show databases;
+alter database mydb2 character set gbk;
+
+
+创建表
+
+语法:
+create table 表名(
+   列名称1 列名称1值类型,
+   列名称2 列名称2值类型,
+   列名称3 列名称3值类型,
+   列名称4 列名称4值类型
+);
+
+列名称1值类型 是mysql 中运行的值的类型
+
+字符串型 ----------String 
+VARCHAR、CHAR
+
+varchar(30), char(30)
+
+大数据类型--------------字节流, 字符流
+BLOB、TEXT
+
+数值型--------------------- 数值类型 (bit ,byte,short,int, long, float,double,)
+TINYINT 、SMALLINT、INT、BIGINT、FLOAT、DOUBLE
+
+逻辑性 
+BIT
+
+日期型
+DATE(只有日期)、TIME(只有时间)、DATETIME(日期和时间)、TIMESTAMP(日期和时间,时间戳)
+
+
+创建一个员工表employee ---- 查看表结构: desc 表名;
+字段	属性   
+id	整形      int 
+name	字符型    varchar(30)
+gender	字符型    varchar(10)
+birthday	日期型   date
+entry_date	日期型   date
+job	字符型          varchar(50)
+salary	小数型          double
+resume	大文本型        varchar(255)
+
+create table employee(
+   id int,
+   name varchar(30),
+   gender varchar(10),
+   birthday date,
+   entry_date date,
+   job varchar(50),
+   salary double,
+   resume varchar(255)
+);
+
+======定义单表字段的约束=====
+是为了保证数据的有效性和完整性
+
+定义主键约束(唯一,并且非空)
+ primay key 
+
+ 如果列的类型是数值,并且声明为主键,那么通常会加上  auto_increment,表示自动增长
+
+唯一约束(不能重复,可以为空 ):
+   unique 
+
+非空约束(可以重复,不能为空):
+   not null 
+
+create table employee2(
+   id int primary key auto_increment,
+   name varchar(30) not null,
+   gender varchar(10) not null,
+   birthday date,
+   entry_date date,
+   job varchar(50),
+   salary double not null,
+   resume varchar(255) unique
+);
+
+查看当前数据库有什么表
+show tables; 
+
+=====修改表====
+语法:
+alter table 表名 具体的功能关键字;
+
+练习
+在上面员工表的基本上增加一个image列。
+alter table employee add image blob;
+
+修改job列，使其长度为60。
+alter table employee modify job varchar(60);
+
+删除gender列。
+alter table employee drop gender;
+
+表名改为user。
+rename table employee to user;
+
+修改表的字符集为utf8
+alter table user character set utf8;
+
+列名name修改为username
+alter table user change name username varchar(40);
+
+
+==========以上是 属于DDL 语句, 下面介绍 DML 语句=======
+DML语句分为 : 增加(insert ), 更新(update),删除(delete )
+
+增加 : insert
+语法:
+
+insert into 表名 ...;
+
+create table employee2(
+   id int primary key auto_increment,
+   name varchar(30) not null,
+   gender varchar(10) not null,
+   birthday date,
+   entry_date date,
+   job varchar(50),
+   salary double not null,
+   resume varchar(255) unique
+);
+
+语法一(全写):
+insert into employee2(id,name,gender,birthday,entry_date,job,salary,resume) values(1,'zs','female','1995-09-09','2015-12-09','developer',15000,'a good developer');
+语法二(只写部分):
+insert into employee2 (id,name,gender,salary,resume) values(null,'chenhaojie','male',17000,'a hansome boy');
+
+语法三(不写字段名称,只写字段值,但是所有的字段值都要写):
+insert into employee2 values(null,'linpeng','male','1994-09-09','2015-12-22','programmer',16000,'a lady killer');
+
+====update语句的使用
+语法:
+update 表名 set 列名=列名值,列名=列名值 [where 从句];
+
+要求
+将所有员工薪水修改为5000元。
+update employee2 set salary=5000;
+
+将姓名为’zs’的员工薪水修改为3000元。
+update employee2 set salary=3000 where name='zs';
+
+将姓名为’chenhaojie’的员工薪水修改为6000元,job改为ccc。
+update employee2 set salary=6000, job='ccc' where name='chenhaojie';
+
+将linpeng的薪水在原有基础上增加1000元。
+update employee2 set salary=salary+1000 where name='linpeng';
+
+insert into employee2 values(null,'李呈磊','male','1996-09-09','2015-11-02','programmer',18000,'a cute boy');
+
+
+=====删除语句的使用===delete
+
+语法:
+delete from 表名 [where从句];
+
+删除表中名称为’zs’的记录。
+delete from employee2 where name='zs';
+
+删除表中所有记录(DML语句)。
+delete from employee2;
+
+使用truncate删除表中记录。(先将表摧毁,然后再创建, 属于DDL语句)
+truncate employee2;
+
+
+==================select 查询 语句的使用 ===============
+
+create table exams(
+    id int primary key auto_increment,
+    name varchar(20),
+    chinese double,
+    math double,
+    english double
+);
+
+insert into exams values(null,'金刁',84,93,82);
+insert into exams values(null,'孙鼎',84,97,78);
+insert into exams values(null,'崔人杰',85,92,90);
+insert into exams values(null,'二球',81,77,95);
+insert into exams values(null,'二球球',92,95,95);
+
+select语句(一)
+
+
+练习：
+查询表中所有学生的信息。
+select * from exams;
+
+查询表中所有学生的姓名和对应的英语成绩。
+select name,english from exams;
+
+过滤表中重复数据。
+select distinct chinese from exams;
+
+Select语句(２)
+
+通过as 起 别名
+
+练习
+在所有学生分数上加5分特长分。
+select chinese+5,math+5,english+5 from exams ;
+
+统计每个学生的总分。
+select name,chinese+math+english from exams;
+
+select name,chinese+math+english as 总分 from exams;
+
+使用别名表示学生分数。
+select name as 姓名, chinese as 语文, math as 数学, english as 英语 from exams;
+
+select name 姓名, chinese 语文, math 数学, english 英语 from exams;
+
+
+Select语句(3)
+
+使用where子句，进行过滤查询。
+练习：
+查询姓名为崔人杰 的学生成绩
+select * from exams where name='崔人杰';
+
+查询英语成绩大于90分的同学
+select * from exams where english>90;
+
+查询总分大于265分的所有同学
+select * from exams where chinese+math+english>265;
+
+Select语句(3)
+
+查询英语分数在 80－90之间的同学。
+
+select * from exams where english>=80 and english<=90;
+
+select * from exams where english between 80 and 90;
+
+查询数学分数为92,93,95的同学。
+select * from exams where math in(92,93,95);
+
+查询所有姓二的学生成绩。
+select * from exams where name like '二%';
+
+select * from exams where name like '二_';
+
+查询数学分>90，语文分>90的同学。
+select * from exams where math>90 and chinese>90;
+
+
+and	多个条件同时成立
+
+or	多个条件任一成立
+
+当and 碰到 or 的 时候, 哪个先执行? 
+and 先执行 , or 后执行 
+
+Select语句(５)
+
+对查询的结果进行排序输出
+
+可以使用order by 关键字
+其中 desc 表示降序, asc 表示升序
+
+练习：
+对数学成绩排序后输出。
+降序
+select math from exams order by math desc;
+
+对总分排序按从高到低的顺序输出
+select * from exams order by chinese+math+english desc;
+
+对姓二的学生成绩排序输出
+select * from exams where name like '二%' order by chinese+math+english desc;
+
+
+===================聚合函数 的使用================
+
+count: 用于统计 具体的 行数
+
+练习：
+统计一个班级共有多少学生？
+select count(*) from exams;
+
+统计数学成绩大于90的学生有多少个？
+select count(math) from exams where math>90;
+
+统计总分大于275的人数有多少？
+select count(*) from exams where chinese+math+english>275;
+
+
+sum:求和运算
+
+练习：
+统计一个班级数学总成绩？
+select sum(math) 数学总分 from exams;
+
+统计一个班级语文、英语、数学各科的总成绩
+select sum(chinese) as 语文总分,sum(english) as 英语总分,sum(math) as 数学总分 from exams;
+
+统计一个班级语文、英语、数学的成绩总和
+select sum(chinese)+sum(math)+sum(english) from exams;
+
+select sum(chinese)+sum(math)+sum(english) from exams;
+
+
+统计一个班级语文成绩平均分
+select sum(chinese)/count(*) from exams;
+
+
+avg: 求平均值
+
+练习：
+求一个班级数学平均分？
+select avg(math) from exams;
+
+求一个班级总分平均分
+select sum(chinese+math+english)/count(*) from exams;
+
+select avg(chinese+math+english) from exams;
+
+max/min: 求最大值/最小值
+
+练习：
+求班级最高分和最低分（数值范围在统计中特别有用）
+select max(chinese+math+english) 最高分,min(chinese+math+english) 最低分 from exams;
+
+Select语句(6)
+
+group by 用于完成分组功能, 分组后, 就可以进行一些特殊的运算. 
+
+create table orders(
+	id int,
+	product varchar(20),
+	price float
+);
+
+insert into orders(id,product,price) values(1,'电视',900);
+insert into orders(id,product,price) values(2,'洗衣机',100);
+insert into orders(id,product,price) values(3,'洗衣粉',90);
+insert into orders(id,product,price) values(4,'桔子',9);
+insert into orders(id,product,price) values(5,'洗衣粉',90);
+
+练习：对订单表中商品归类后，显示每一类商品的总价
+
+select product,sum(price) from orders group by product;
+
+可以使用 having 对分组后的结果进行运算
+
+练习：查询购买了几类商品，并且每类总价大于100的商品
+
+select product,sum(price) from orders group by product having sum(price)>100;
+
+
+where筛选与 having 筛选的区别?
+ 1.where是在分组前筛选, having是在分组后进行筛选. 
+ 2.having 筛选的时候,可以接 聚合函数, 而where后面不行. 
+
+对select 语句的关键字 小结:
+
+书写顺序:
+	s...f....w....g....h....o
+解析顺序:
+	f...w....g....h....s....o
+
+
+==============多表设计===============
+
+create table emp(
+  id int primary key auto_increment,
+  name varchar(30),
+  job varchar(30),
+  salary double
+);
+
+insert into emp values(null,'张文学','程序猿',15000);
+insert into emp values(null,'桂翔','项目经理',20000);
+insert into emp values(null,'李江','人力资源师',5000);
+insert into emp values(null,'成佳裕','财务经理',20000);
+insert into emp values(null,'王战策','HR经理',12000);
+
+create table dept(
+   id int primary key auto_increment,
+   name varchar(30)
+);
+
+insert into dept values(null,'研发部');
+insert into dept values(null,'人力资源部');
+insert into dept values(null,'财务部');
+
+
+alter table emp add dept_id int;
+
+
+update emp set dept_id=1 where name='张文学';
+update emp set dept_id=1 where name='桂翔';
+update emp set dept_id=2 where name='李江';
+update emp set dept_id=3 where name='成佳裕';
+update emp set dept_id=2 where name='王战策';
+
+
+公司 经营不善, 裁员...
+
+insert into dept values(1,'研发部');
+
+
+使得两张表发生关系,添加外键约束
+
+alter table emp add foreign key(dept_id) references dept(id);
+
+保证了 数据的有效性和完整性.
+
+==========多表设计的原则 (了解 )==========
+
+一张张的表设计时,为了保证数据的有效性和完整性, 该如何去建表
+
+现实生活中, 实体之间的关系:
+
+一对多:
+ 为了准确描述这种关系, 那么会在 建表时, 在 多方 建一个 外键约束,
+ 这个外键约束的值来自于 一方的 主键
+
+多对多:
+ 需要引入第三张关系表,将两张表的主键拿过来当作外键约束,这样关系表就有了
+ 多个外键 了. 
+
+一对一:
+ 通常完全可以将两张表的数据合并到一起...
+
+
+要同时从多张表中去查询数据
+
+多表查询了
+
+a, b 
+
+笛卡尔积
+多表查询时,组合的乘积
+
+笛卡尔积数据不是都是有效的数据,那么要从 笛卡尔积中筛选出有效的数据
+
+create table A(A_ID int primary key auto_increment,A_NAME varchar(20) not null);
+insert into A values(1,'Apple');
+insert into A values(2,'Orange');
+insert into A values(3,'Peach');
+
+create table B(A_ID int primary key auto_increment,B_PRICE double);
+insert into B values(1,2.30);
+insert into B values(2,3.50);
+insert into B values(4,null);
+
+select * from a,b where a.a_id=b.a_id;
+
+筛选出 价格大于 2.5元的有哪些?
+
+select * from a,b where a.a_id=b.a_id and b.b_price>2.5;
+
+
+筛选出 价格大于 2.5元的有几个? 
+
+select count(*) from a,b where a.a_id=b.a_id and b.b_price>2.5;
