@@ -1,0 +1,7 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false"><!--false 表示播放多次-->
+    <!--200表示一张图片显示200ms,即每200ms切换一张图片-->
+    <item android:drawable="@drawable/logo1" android:duration="200" />
+    <item android:drawable="@drawable/logo2" android:duration="200" />
+    <item android:drawable="@drawable/logo3" android:duration="200" />
+</animation-list>
