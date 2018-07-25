@@ -20,18 +20,18 @@ public class IOUtil {
         mContext = context;
     }
 
-    public File getContextFilesDir(){
-        File filesDir = mContext.getFilesDir();
+    public static File getContextFilesDir(Context context){
+        File filesDir = context.getFilesDir();
         return  filesDir;
     }
 
-    public File getContextCacheDir(){
-        File filesDir = mContext.getCacheDir();
+    public static File getContextCacheDir(Context context){
+        File filesDir = context.getCacheDir();
         return  filesDir;
     }
 
-    public InputStream getAssets(String filename){
-        AssetManager assetMgr = mContext.getAssets();
+    public static InputStream getAssets(Context context, String filename){
+        AssetManager assetMgr = context.getAssets();
         InputStream inputStream = null;
         try {
             inputStream = assetMgr.open(filename);
@@ -47,7 +47,7 @@ public class IOUtil {
      * @return
      * @throws IOException
      */
-    public static String decodeStream(InputStream in) throws IOException {
+    public static String decodeStreamToString(InputStream in, String charsetName) throws IOException {
 
         //底层流
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -59,8 +59,9 @@ public class IOUtil {
         }
 
         baos.close();
-        //返回 字符 数据
-        return baos.toString();
+        //返回字符数据
+        //toString(String charsetName),如果inputStream流为文本数据，并且乱码时，调toString时可设置编码格式
+        return charsetName == null ? baos.toString() : baos.toString(charsetName);
     }
 
 }

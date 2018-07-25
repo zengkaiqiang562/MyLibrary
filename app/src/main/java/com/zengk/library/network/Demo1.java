@@ -29,7 +29,7 @@ public class Demo1 extends Activity {
      *      conn.setRequestMethod("GET");
      *      conn.setConnectTimeout(5000);
      *      conn.getContentLength();
-     *      conn.getContentType();
+     *      conn.getContentType();  类型有image/png, text/html, text/xml等
      *      conn.setRequestProperty(String field, String newValue);
      *      conn.getHeaderField
      */

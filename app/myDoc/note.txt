@@ -1,2 +1,12 @@
 1. android访问网络需要权限：<uses-permission android:name="android.permission.INTERNET"/>
 
+2. http://wthrcdn.etouch.cn/weather_mini?city=深圳   此网址可查看任意城市的json数据格式的天气预报
+
+3. Json 相关：
+    a. Json数据的两种格式:
+       第一种: json 对象 ----  {key:value,key:value,key:value}
+       第二种: json数组------- [value1,value2,value3,value4]
+       *第三种: 混合的(数组中包含了对象)
+
+    b. Json数据中的Key始终都是字符串
+
