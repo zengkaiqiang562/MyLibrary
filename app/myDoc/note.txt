@@ -10,3 +10,13 @@
 
     b. Json数据中的Key始终都是字符串
 
+*开源框架
+    一. 开源框架SmartImageView -> "https://github.com/loopj/android-smart-image-view":
+        extends ImageView, 通过setImageUrl(String url)传递图片网址然后直接显示网络图片到ImageView中
+
+    二. 开源框架XUtils(XUtils2.x, XUtils3) -> "https://github.com/wyouflf/xUtils3":
+        1. ORM,对数据库的操作
+        2. http,文件下载，上传
+        3. view注解
+        4. 网络图片的获取，缓存
+
